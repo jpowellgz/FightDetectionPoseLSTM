@@ -1,0 +1,1 @@
+Examples of images extracted by MultipleFrameVideoExtraction can be stored here

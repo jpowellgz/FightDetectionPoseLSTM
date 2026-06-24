@@ -113,6 +113,13 @@ class VideoFrameExtractor(VideoReader):
         return test_frames
 
     def save_frame(self, frame: np.ndarray, number: int, digits: int) -> None:
+        """Save a frame
+
+        Args:
+            frame (np.ndarray): frame
+            number (int): number id
+            digits (int): number of digits to use
+        """
         file_name = os.path.join(self.output_directory, f"frame_{number:0{digits}}.jpg")
         cv2.imwrite(filename=file_name, img=frame)
 

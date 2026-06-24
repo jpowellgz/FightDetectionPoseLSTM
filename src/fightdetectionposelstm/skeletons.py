@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+import numpy as np
 from src.fightdetectionposelstm.logging import logger
 
 
@@ -27,6 +28,7 @@ class Skeleton:
         self.keypoints = [Keypoint(0, 0) for _ in range(num_keypoints)]
         self.keypoint_names = [""]  # Placeholder for different skeleton structures
         self.pairs = []
+        self.fight_pairs_indexes = []
 
 
     def set_keypoint(self, kpt_index: int, x: int, y: int) -> None:
@@ -99,13 +101,15 @@ class OpenPoseSkeleton(Skeleton):
             [2, 17],
             [5, 16],
         ]
+        self.fight_pairs_indexes = list(range(13))
 
 
 class AngleCalculator:
-    def __init__(self, angle_bins: int = 20):
+    def __init__(self, angle_bins: int = 20, num_limbs: int= 13):
         self.angles = [k / angle_bins for k in range(angle_bins)]
         self.angle_sin = [math.sin(angle*2*math.pi) for angle in self.angles]
         self.angle_cos = [math.cos(angle*2*math.pi) for angle in self.angles]
+        self.angle_distribution = np.zeros((num_limbs, angle_bins))
 
     @staticmethod
     def get_angle_index(sin_indexes: list[int], cos_indexes: list[int]) -> int:
@@ -173,10 +177,9 @@ class AngleCalculator:
         sin_idxs = self.get_indexes(self.angle_sin, sin_val)
         cos_idxs = self.get_indexes(self.angle_cos, cos_val)
         angle_index = self.get_angle_index(sin_idxs, cos_idxs)
-        angle = self.angles[angle_index]
-        return angle
+        return angle_index
 
-    def calculate_limb_angle(self, keypoint_one: Keypoint, keypoint_two: Keypoint) -> float:
+    def calculate_limb_angle_idx(self, keypoint_one: Keypoint, keypoint_two: Keypoint) -> int:
         """Approximate the angle of a limb without trigonometric functions, using
         distribution bins. Retu
 
@@ -192,5 +195,29 @@ class AngleCalculator:
         sin = y_diff / hypotenuse
         cos = x_diff / hypotenuse
 
-        angle = self.search_angle(sin, cos)
-        return angle
+        angle_index = self.search_angle(sin, cos)
+        return angle_index
+
+    def add_skeleton_distribution(self, skeleton: Skeleton):
+        """Calculate the angles for one skeleton and add the values to the distribution
+
+        Args:
+            skeleton (Skeleton): input skeleton
+        """
+        for idx, pair_idx in enumerate(skeleton.fight_pairs_indexes):
+            keypoint_one, keypoint_two = skeleton.get_keypoint_pair(pair_idx)
+            angle_index = self.calculate_limb_angle_idx(keypoint_one, keypoint_two)
+            self.angle_distribution[idx][angle_index] += 1
+    
+    def get_distribution_vector(self) -> np.ndarray:
+        """Normalize and flatten the distribution
+
+        Returns:
+            np.ndarray: distribution vector
+        """
+        normalized_distribution = self.angle_distribution.copy()
+        for i in range(self.angle_distribution.shape[0]):
+            max_val = np.max(self.angle_distribution[i])
+            normalized_distribution[i]  = self.angle_distribution[i] / max_val if max_val > 0 else self.angle_distribution[i]
+        flat_dist = self.normalized_distribution.flatten()
+        return flat_dist

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import math
+from src.fightdetectionposelstm.logging import logger
 
 
 @dataclass
@@ -30,8 +31,8 @@ class Skeleton:
 
     def calculate_angle_tables(self, angle_bins: int):
         self.angles = [k / angle_bins for k in range(angle_bins)]
-        self.angle_sin = [math.sin(angle) for angle in self.angles]
-        self.angle_cos = [math.cos(angle) for angle in self.angles]
+        self.angle_sin = [math.sin(angle*2*math.pi) for angle in self.angles]
+        self.angle_cos = [math.cos(angle*2*math.pi) for angle in self.angles]
 
     def set_keypoint(self, kpt_index: int, x: int, y: int):
         """Set a keypoint
@@ -43,8 +44,47 @@ class Skeleton:
         """
         self.keypoints[kpt_index] = Keypoint(x, y)
 
-    def search_angle(self, sin: float, cos: float):
-        return 0.0 #Placeholder
+    @staticmethod
+    def get_angle_index(sin_indexes: list[int], cos_indexes: list[int]) -> int:
+        if len(sin_indexes) == 1 and len(cos_indexes) == 1:
+            return sin_indexes[0]
+        else:
+            s_idx = -1
+            for i in range(len(sin_indexes)):
+                for c_idx in cos_indexes:
+                    if sin_indexes[i] == c_idx:
+                        s_idx = sin_indexes[i]
+                        break
+            if s_idx == -1:
+                min_dist = 1000
+                for i in range(len(sin_indexes)):
+                    for c_idx in cos_indexes:
+                        dist = abs(sin_indexes[i] - c_idx)
+                        if dist < min_dist:
+                            min_dist = dist
+                            s_idx = sin_indexes[i]
+            return s_idx
+
+    @staticmethod
+    def get_indexes(list_values: list[float], trig_value: float):
+        indexes = []
+        length = len(list_values)
+        for i in range(length):
+            values = [list_values[i], list_values[(i+1)%length]]
+            if values[0] < values[1]: 
+                if trig_value >= values[0] and trig_value < values[1]:
+                    indexes.append(i)
+            else:
+                if trig_value <= values[0] and trig_value > values[1]:
+                    indexes.append(i)
+        return indexes
+
+    def search_angle(self, sin_val: float, cos_val: float) -> float:
+        sin_idxs = self.get_indexes(self.angle_sin, sin_val)
+        cos_idxs = self.get_indexes(self.angle_cos, cos_val)
+        angle_index = self.get_angle_index(sin_idxs, cos_idxs)
+        angle = self.angles[angle_index]
+        return angle
 
     def calculate_limb_angle(self, pair_idx: int) -> float:
         """Approximate the angle of a limb without trigonometric functions, using
@@ -65,13 +105,14 @@ class Skeleton:
         hypotenuse = math.sqrt(x_diff**2 + y_diff**2)
         sin = y_diff / hypotenuse
         cos = x_diff / hypotenuse
+
         angle = self.search_angle(sin, cos)
         return angle        
 
 @dataclass
 class OpenPoseSkeleton(Skeleton):
-    def __init__(self):
-        super().__init__(num_keypoints=18)
+    def __init__(self, angle_bins: int = 20):
+        super().__init__(num_keypoints=18, angle_bins=angle_bins)
         self.keypoint_names = [
             "Nose",
             "Neck",

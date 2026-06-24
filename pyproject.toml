@@ -1,8 +1,22 @@
 [project]
 name = "fightdetectionposelstm"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.10"
 dependencies = [
     "opencv-python>=4.13.0.92",
     "tqdm>=4.68.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+# pytest.ini
+[tool.pytest.ini_options]
+log_cli = 1
+log_cli_level = "info"
+log_level = "info"
+testpaths =[
+    "src",
 ]

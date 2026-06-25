@@ -2,16 +2,20 @@ from abc import abstractmethod, ABC
 from dataclasses import dataclass
 import numpy as np
 
+from fight_detection_pose_lstm.skeletons import Skeleton
+
 
 @dataclass
 class ModelArgs:
     local_path: str
 
+
 class Model(ABC):
     """Base class to get a model, train it on vectors and perform inference"""
+
     def __init__(self, model_args: ModelArgs):
         self.args = model_args
-    
+
     @abstractmethod
     def load_model(self):
         pass
@@ -24,5 +28,27 @@ class Model(ABC):
     def train(self):
         pass
 
-    def inference(self, x_input: np.ndarray):
+    def inference(self, x_input: np.ndarray) -> np.ndarray:
         pass
+
+
+@dataclass
+class KeypointModelArgs(ModelArgs):
+    num_keypoints: int
+    keypoint_names: list[str]
+    pairs: list[list[int]]
+
+
+class KeypointModel(Model):
+    def __init__(self, model_args: KeypointModelArgs):
+        super().__init__(model_args)
+
+    def get_skeletons(self, x_input: np.ndarray) -> list[Skeleton]:
+        keypoints = self.inference(x_input)
+        skeletons = []
+        for n in range(keypoints.shape[0]):
+            skeleton = Skeleton(
+                num_keypoints=self.args.num_keypoints,
+                keypoint_names=self.args.keypoint_names,
+                pairs=self.args.pairs,
+            )

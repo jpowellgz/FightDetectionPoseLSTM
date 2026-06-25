@@ -15,20 +15,30 @@ class Keypoint:
         self.y = y
 
 
-@dataclass
 class Skeleton:
     """Base Skeleton class"""
-    keypoints: list[Keypoint]
+    keypoints_np: np.ndarray
     num_keypoints: int
     keypoint_names: list[str]
     pairs: list[list[int]]
+    fight_pairs_indexes: list[int]
 
-    def __init__(self, num_keypoints: int):
+    def __init__(
+        self,
+        num_keypoints: int,
+        keypoints_np: np.ndarray,
+        keypoint_names: list[str] | None = None,
+        pairs: list[list[int]] | None = None,
+        fight_pairs_indexes: list[int] | None = None
+    ):
         self.num_keypoints = num_keypoints
-        self.keypoints = [Keypoint(0, 0) for _ in range(num_keypoints)]
-        self.keypoint_names = [""]  # Placeholder for different skeleton structures
-        self.pairs = []
-        self.fight_pairs_indexes = []
+        self.keypoints = [Keypoint(0, 0) for _ in range(self.num_keypoints)]
+        for idx, kpt in enumerate(keypoints_np):
+            self.set_keypoint(idx, int(kpt[0]), int(kpt[1]))
+        self.keypoint_names = keypoint_names if keypoint_names is not None else []
+        
+        self.pairs = pairs if pairs is not None else []
+        self.fight_pairs_indexes = fight_pairs_indexes if fight_pairs_indexes is not None else []
 
 
     def set_keypoint(self, kpt_index: int, x: int, y: int) -> None:
@@ -55,53 +65,6 @@ class Skeleton:
         keypoint_one = self.keypoints[kpt_one_index]
         keypoint_two = self.keypoints[kpt_two_index]
         return keypoint_one, keypoint_two
-
-@dataclass
-class OpenPoseSkeleton(Skeleton):
-    def __init__(self):
-        super().__init__(num_keypoints=18)
-        self.keypoint_names = [
-            "Nose",
-            "Neck",
-            "RShoulder",
-            "RElbow",
-            "RWrist",
-            "LShoulder",
-            "LElbow",
-            "LWrist",
-            "RHip",
-            "RKnee",
-            "RAnkle",
-            "LHip",
-            "LKnee",
-            "LAnkle",
-            "REye",
-            "LEye",
-            "REar",
-            "LEar",
-        ]
-        self.pairs = [
-            [1, 2],
-            [1, 5],
-            [2, 3],
-            [3, 4],
-            [5, 6],
-            [6, 7],
-            [1, 8],
-            [8, 9],
-            [9, 10],
-            [1, 11],
-            [11, 12],
-            [12, 13],
-            [1, 0],
-            [0, 14],
-            [14, 16],
-            [0, 15],
-            [15, 17],
-            [2, 17],
-            [5, 16],
-        ]
-        self.fight_pairs_indexes = list(range(13))
 
 
 class AngleCalculator:

@@ -4,7 +4,7 @@ from typing import Literal
 import cv2
 import numpy as np
 
-from fight_detection_pose_lstm.model_base import Model, ModelArgs
+from fight_detection_pose_lstm.model_base import KeypointModel, KeypointModelArgs
 from fight_detection_pose_lstm.logging import logger
 
 """
@@ -15,38 +15,65 @@ https://www.learnopencv2.com/multi-person-pose-estimation-in-opencv-using-openpo
 
 
 @dataclass
-class OpenPoseArgs(ModelArgs):
-	local_path: str = "./openpose/models/pose/coco/pose_iter_440000.caffemodel"
-	proto_path: str = "./openpose/models/pose/coco/pose_deploy_linevec.prototxt"
-	dataset: Literal["COCO", "MPI", "HAND"] = "COCO"
-	threshold: float = 0.1
-	width: int = 640
-	height: int = 360
-	scale: float = 0.003922
+class OpenPoseArgs(KeypointModelArgs):
+	def __init__(self, local_path: str, proto_path: str):
+		num_keypoints = 18
+		keypoint_names = [
+			"Nose",
+			"Neck",
+			"RShoulder",
+			"RElbow",
+			"RWrist",
+			"LShoulder",
+			"LElbow",
+			"LWrist",
+			"RHip",
+			"RKnee",
+			"RAnkle",
+			"LHip",
+			"LKnee",
+			"LAnkle",
+			"REye",
+			"LEye",
+			"REar",
+			"LEar",
+			"Background",
+			]
+		pairs = [
+			[1, 2],
+			[1, 5],
+			[2, 3],
+			[3, 4],
+			[5, 6],
+			[6, 7],
+			[1, 8],
+			[8, 9],
+			[9, 10],
+			[1, 11],
+			[11, 12],
+			[12, 13],
+			[1, 0],
+			[0, 14],
+			[14, 16],
+			[0, 15],
+			[15, 17],
+			[2, 17],
+			[5, 16],
+		]
+		self.threshold: float = 0.1
+		self.width: int = 640
+		self.height: int = 360
+		self.scale: float = 0.003922
+		self.proto_path = proto_path
+		super().__init__(
+			local_path=local_path,
+			num_keypoints=num_keypoints,
+			keypoint_names=keypoint_names,
+			pairs=pairs,
+		)
 
 
-class OpenPoseGuptaModel(Model):
-	COCO_POSE_PAIRS = [
-		[1, 2],
-		[1, 5],
-		[2, 3],
-		[3, 4],
-		[5, 6],
-		[6, 7],
-		[1, 8],
-		[8, 9],
-		[9, 10],
-		[1, 11],
-		[11, 12],
-		[12, 13],
-		[1, 0],
-		[0, 14],
-		[14, 16],
-		[0, 15],
-		[15, 17],
-		[2, 17],
-		[5, 16],
-	]
+class OpenPoseGuptaModel(KeypointModel):
 	mapIdx = [
 		[31, 32],
 		[39, 40],
@@ -68,29 +95,8 @@ class OpenPoseGuptaModel(Model):
 		[37, 38],
 		[45, 46],
 	]
-	COCO_BODY_PARTS = {
-		"Nose": 0,
-		"Neck": 1,
-		"RShoulder": 2,
-		"RElbow": 3,
-		"RWrist": 4,
-		"LShoulder": 5,
-		"LElbow": 6,
-		"LWrist": 7,
-		"RHip": 8,
-		"RKnee": 9,
-		"RAnkle": 10,
-		"LHip": 11,
-		"LKnee": 12,
-		"LAnkle": 13,
-		"REye": 14,
-		"LEye": 15,
-		"REar": 16,
-		"LEar": 17,
-		"Background": 18,
-	}
 
-	def __init__(self, model_args=OpenPoseArgs()):
+	def __init__(self, model_args):
 		super().__init__(model_args)
 		self.load_model()
 		logger.info(f"Loaded Open Pose model from {self.args.local_path}")
@@ -108,7 +114,7 @@ class OpenPoseGuptaModel(Model):
 		detected_keypoints = []
 		keypoints_list = np.zeros((0, 3))
 		keypoint_id = 0
-		for i in range(len(self.COCO_BODY_PARTS)):
+		for i in range(self.args.num_keypoints):
 			# Slice heatmap of corresponding body's part.
 			probMap = output[0, i, :, :]
 			probMap = cv2.resize(probMap, (self.args.width, self.args.height))
@@ -149,8 +155,8 @@ class OpenPoseGuptaModel(Model):
 			pafA = cv2.resize(pafA, (self.args.width, self.args.height))
 			pafB = cv2.resize(pafB, (self.args.width, self.args.height))
 			# Find the keypoints for the first and second limb
-			candA = detected_keypoints[self.COCO_POSE_PAIRS[k][0]]
-			candB = detected_keypoints[self.COCO_POSE_PAIRS[k][1]]
+			candA = detected_keypoints[self.args.pairs[k][0]]
+			candB = detected_keypoints[self.args.pairs[k][1]]
 			nA = len(candA)
 			nB = len(candB)
 
@@ -236,7 +242,7 @@ class OpenPoseGuptaModel(Model):
 			if k not in invalid_pairs:
 				partAs = valid_pairs[k][:, 0]
 				partBs = valid_pairs[k][:, 1]
-				indexA, indexB = np.array(self.COCO_POSE_PAIRS[k])
+				indexA, indexB = np.array(self.args.pairs[k])
 
 				for i in range(len(valid_pairs[k])):
 					found = 0
@@ -268,7 +274,7 @@ class OpenPoseGuptaModel(Model):
 		skeleton = np.zeros((len(personwiseKeypoints), 18, 2))
 		for i in range(17):
 			for n in range(len(personwiseKeypoints)):
-				index = personwiseKeypoints[n][np.array(self.COCO_POSE_PAIRS[i])]
+				index = personwiseKeypoints[n][np.array(self.args.pairs[i])]
 				if -1 in index:
 					continue
 				B = np.int32(keypoints_list[index.astype(int), 0])
@@ -299,7 +305,7 @@ class OpenPoseGuptaModel(Model):
 		drawn_frame = frame.copy()
 		for n in range(keypoints.shape[0]):
 			color = (random.randint(0, 255),random.randint(0, 255),random.randint(0, 255))
-			for idx, pair in enumerate(self.COCO_POSE_PAIRS):
+			for idx, pair in enumerate(self.args.pairs):
 				kpt_one = (int(keypoints[n][pair[0]][0]), int(keypoints[n][pair[0]][1])) 
 				kpt_two = (int(keypoints[n][pair[1]][0]), int(keypoints[n][pair[1]][1]))
 				kpt_one_exists = kpt_one[0] >0 and kpt_one[1]> 0
@@ -351,8 +357,8 @@ class OpenPoseGuptaModel(Model):
 		logger.info("Open Pose inference starting")
 		output = self.net.forward()
 		logger.info("Open Pose inference finished")
-		if len(self.COCO_BODY_PARTS) <= output.shape[1]:
+		if self.args.num_keypoints <= output.shape[1]:
 			keypoints = self.get_keypoints(output)
 		else:
-			keypoints = np.zeros((1, len(self.COCO_BODY_PARTS, 2)))
+			keypoints = np.zeros((1, self.args.num_keypoints, 2))
 		return keypoints

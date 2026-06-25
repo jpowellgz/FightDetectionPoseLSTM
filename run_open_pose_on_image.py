@@ -7,10 +7,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("image_or_directory")
     parser.add_argument("model_path")
+    parser.add_argument("proto_path")
 
     args = parser.parse_args()
 
-    model = OpenPoseGuptaModel(OpenPoseArgs(local_path=args.model_path))
+    model = OpenPoseGuptaModel(OpenPoseArgs(local_path=args.model_path, proto_path=args.proto_path))
 
     images = []
     path = Path(args.image_or_directory)

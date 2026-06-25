@@ -43,12 +43,16 @@ class KeypointModel(Model):
     def __init__(self, model_args: KeypointModelArgs):
         super().__init__(model_args)
 
-    def get_skeletons(self, x_input: np.ndarray) -> list[Skeleton]:
+    def infer_skeletons(self, x_input: np.ndarray, fight_pairs_indexes: list[int]) -> list[Skeleton]:
         keypoints = self.inference(x_input)
         skeletons = []
         for n in range(keypoints.shape[0]):
             skeleton = Skeleton(
                 num_keypoints=self.args.num_keypoints,
+                keypoints_np=keypoints[n],
                 keypoint_names=self.args.keypoint_names,
                 pairs=self.args.pairs,
+                fight_pairs_indexes=fight_pairs_indexes,
             )
+            skeletons.append(skeleton)
+        return skeletons

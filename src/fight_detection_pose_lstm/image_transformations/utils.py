@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 
-from src.fightdetectionposelstm.image_transformations.base import ImageTransformation, ImageTransformationPipeline
+from fight_detection_pose_lstm.image_transformations.base import ImageTransformation, ImageTransformationPipeline
 
 def show_before_after(image_before:np.ndarray, image_after: np.ndarray, scale: float=1.0, horizontal=True):
     """Method to show two images side by side or one on top of the other

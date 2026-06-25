@@ -3,7 +3,7 @@ import tqdm
 import numpy as np
 import os
 import math
-from src.fightdetectionposelstm.logging import logger
+from fight_detection_pose_lstm.logging import logger
 
 class VideoReader:
     """Class to create an OpenCV video reader."""

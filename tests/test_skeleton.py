@@ -1,6 +1,6 @@
 import math
 from unittest import TestCase
-from src.fightdetectionposelstm.skeletons import AngleCalculator, OpenPoseSkeleton
+from fight_detection_pose_lstm.skeletons import AngleCalculator, OpenPoseSkeleton
 
 class TestSkeletons(TestCase):
     def test_open_pose_angle_calculation(self):

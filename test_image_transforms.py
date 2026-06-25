@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
-from src.fightdetectionposelstm.image_transformations.base import ImageTransformationPipeline
-from src.fightdetectionposelstm.image_transformations.edges import HighlightEdges
-from src.fightdetectionposelstm.image_transformations.utils import test_with_image
+from fight_detection_pose_lstm.image_transformations.base import ImageTransformationPipeline
+from fight_detection_pose_lstm.image_transformations.edges import HighlightEdges
+from fight_detection_pose_lstm.image_transformations.utils import test_with_image
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import numpy as np
-from src.fightdetectionposelstm.image_transformations.base import ImageTransformation
-from src.fightdetectionposelstm.image_transformations.constants import SOBEL_LR_KERNEL, SOBEL_RL_KERNEL
+from fight_detection_pose_lstm.image_transformations.base import ImageTransformation
+from fight_detection_pose_lstm.image_transformations.constants import SOBEL_LR_KERNEL, SOBEL_RL_KERNEL
 
 
 

@@ -1,4 +1,4 @@
-# FightDetectionPoseLSTM
+# fight_detection_pose_lstm
 Fight detection using Open Pose and Bi-LSTM  
 Thesis project with paper on review stages.  
   

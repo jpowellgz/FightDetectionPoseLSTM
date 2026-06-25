@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import math
 import numpy as np
-from src.fightdetectionposelstm.logging import logger
+from fight_detection_pose_lstm.logging import logger
 
 
 @dataclass

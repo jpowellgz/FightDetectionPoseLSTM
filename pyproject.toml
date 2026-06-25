@@ -1,5 +1,5 @@
 [project]
-name = "fightdetectionposelstm"
+name = "fight_detection_pose_lstm"
 version = "0.1.1"
 requires-python = ">=3.10"
 dependencies = [
@@ -11,6 +11,14 @@ dependencies = [
 dev = [
     "pytest>=9.1.1",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fight_detection_pose_lstm"]
+
 
 # pytest.ini
 [tool.pytest.ini_options]

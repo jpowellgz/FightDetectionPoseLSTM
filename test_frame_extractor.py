@@ -1,5 +1,5 @@
 import argparse
-from src.fightdetectionposelstm.frame_extraction import VideoFrameExtractor
+from fight_detection_pose_lstm.frame_extraction import VideoFrameExtractor
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

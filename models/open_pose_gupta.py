@@ -14,6 +14,8 @@ https://www.learnopencv2.com/multi-person-pose-estimation-in-opencv-using-openpo
 """
 
 
+OPENPOSE_FIGHT_PAIRS = list(range(13))
+
 @dataclass
 class OpenPoseArgs(KeypointModelArgs):
 	def __init__(self, local_path: str, proto_path: str):

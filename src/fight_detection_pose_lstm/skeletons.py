@@ -13,6 +13,11 @@ class Keypoint:
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
+    
+    def is_valid(self) -> bool:
+        if self.x > 0 and self.y > 0:
+            return True
+        return False
 
 
 class Skeleton:
@@ -169,8 +174,9 @@ class AngleCalculator:
         """
         for idx, pair_idx in enumerate(skeleton.fight_pairs_indexes):
             keypoint_one, keypoint_two = skeleton.get_keypoint_pair(pair_idx)
-            angle_index = self.calculate_limb_angle_idx(keypoint_one, keypoint_two)
-            self.angle_distribution[idx][angle_index] += 1
+            if keypoint_one.is_valid() and keypoint_two.is_valid():
+                angle_index = self.calculate_limb_angle_idx(keypoint_one, keypoint_two)
+                self.angle_distribution[idx][angle_index] += 1
     
     def get_distribution_vector(self) -> np.ndarray:
         """Normalize and flatten the distribution
@@ -182,5 +188,5 @@ class AngleCalculator:
         for i in range(self.angle_distribution.shape[0]):
             max_val = np.max(self.angle_distribution[i])
             normalized_distribution[i]  = self.angle_distribution[i] / max_val if max_val > 0 else self.angle_distribution[i]
-        flat_dist = self.normalized_distribution.flatten()
+        flat_dist = normalized_distribution.flatten()
         return flat_dist

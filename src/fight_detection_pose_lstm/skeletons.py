@@ -72,6 +72,8 @@ class Skeleton:
         return keypoint_one, keypoint_two
 
 
+
+
 class AngleCalculator:
     def __init__(self, angle_bins: int = 20, num_limbs: int= 13):
         self.angles = [k / angle_bins for k in range(angle_bins)]
@@ -186,7 +188,7 @@ class AngleCalculator:
         """
         normalized_distribution = self.angle_distribution.copy()
         for i in range(self.angle_distribution.shape[0]):
-            max_val = np.max(self.angle_distribution[i])
-            normalized_distribution[i]  = self.angle_distribution[i] / max_val if max_val > 0 else self.angle_distribution[i]
+            sum_val = np.sum(self.angle_distribution[i])
+            normalized_distribution[i]  = self.angle_distribution[i] / sum_val if sum_val > 0 else self.angle_distribution[i]
         flat_dist = normalized_distribution.flatten()
         return flat_dist

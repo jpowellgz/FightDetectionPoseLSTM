@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import random
-from typing import Literal
 import cv2
 import numpy as np
 
@@ -14,11 +13,9 @@ https://www.learnopencv2.com/multi-person-pose-estimation-in-opencv-using-openpo
 """
 
 
-OPENPOSE_FIGHT_PAIRS = list(range(13))
-
 @dataclass
 class OpenPoseArgs(KeypointModelArgs):
-	def __init__(self, local_path: str, proto_path: str):
+	def __init__(self, model_path: str, proto_path: str):
 		num_keypoints = 18
 		keypoint_names = [
 			"Nose",
@@ -68,7 +65,7 @@ class OpenPoseArgs(KeypointModelArgs):
 		self.scale: float = 0.003922
 		self.proto_path = proto_path
 		super().__init__(
-			local_path=local_path,
+			local_path=model_path,
 			num_keypoints=num_keypoints,
 			keypoint_names=keypoint_names,
 			pairs=pairs,

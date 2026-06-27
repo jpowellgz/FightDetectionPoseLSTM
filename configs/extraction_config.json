@@ -1,0 +1,10 @@
+{
+    "directory_config": {
+        "directory": "data/fightDet",
+        "fight_subdirectory": "fight",
+        "no_fight_subdirectory": "noFight"
+    },
+    "extraction_config": {
+        "num_frames": 10
+    }
+}

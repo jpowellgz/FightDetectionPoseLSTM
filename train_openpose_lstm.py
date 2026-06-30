@@ -1,21 +1,40 @@
 import argparse
 import os
+from typing import Any
 
 from fight_detection_pose_lstm.image_transformations.base import (
     ImageTransformationPipeline,
 )
 from fight_detection_pose_lstm.image_transformations.edges import HighlightEdges
-from fight_detection_pose_lstm.train import Training, FIGHT_LABEL, NO_FIGHT_LABEL
+from fight_detection_pose_lstm.train import Training, Labels
 from models.open_pose_gupta import OpenPoseArgs, OpenPoseGuptaModel
-from configs.dataclasses import (
+from models.tensorflow_lstm import LSTMArgs, TensorflowLSTM
+from fight_detection_pose_lstm.config import (
     AngleCalculatorConfig,
     DirectoryConfig,
-    DIRECTORY_CONFIG,
-    ANGLE_CONFIG,
-    CLASSIF_MODEL,
-    KEYPOINT_CONFIG,
+    ConfigKeys,
 )
-from utils import check_path, load_config
+from fight_detection_pose_lstm.utils import check_path, load_config
+
+
+def check_config(config: dict[str, Any]) -> None:
+    if ConfigKeys.directory not in config:
+        raise AttributeError(f"Missing {ConfigKeys.directory}")
+    if ConfigKeys.angle not in config:
+        raise AttributeError(f"Missing {ConfigKeys.angle}")
+    if ConfigKeys.keypoint not in config:
+        raise AttributeError(f"Missing {ConfigKeys.keypoint}")
+    if ConfigKeys.classification not in config:
+        raise AttributeError(f"Missing {ConfigKeys.classification}")
+
+def init_models(config: dict[str, Any]):
+    keypoint_config = OpenPoseArgs(**config_dict[ConfigKeys.keypoint])
+    classification_config = LSTMArgs(**config_dict[ConfigKeys.classification])
+    kpt = OpenPoseGuptaModel(keypoint_config)
+    classif = TensorflowLSTM(classification_config)
+
+    return kpt, classif
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -25,12 +44,14 @@ if __name__ == "__main__":
         "config", type=str, help="Path to the config for running training"
     )
 
+    # Check directory
     args = parser.parse_args()
     check_path(args.config)
     config_dict = load_config(args.config)
-    dir_config = DirectoryConfig(**config_dict[DIRECTORY_CONFIG])
-    angle_config = AngleCalculatorConfig(**config_dict[ANGLE_CONFIG])
-    keypoint_config = OpenPoseArgs(**config_dict[KEYPOINT_CONFIG])
+    check_config(config_dict)
+    dir_config = DirectoryConfig(**config_dict[ConfigKeys.directory])
+    angle_config = AngleCalculatorConfig(**config_dict[ConfigKeys.angle])
+
 
     check_path(dir_config.directory)
 
@@ -39,7 +60,7 @@ if __name__ == "__main__":
     check_path(fight_dir)
     check_path(no_fight_dir)
 
-    keypoint_model = OpenPoseGuptaModel(keypoint_config)
+    keypoint_model, classification_model = init_models(config_dict)
     transformations = ImageTransformationPipeline([HighlightEdges()])
     training = Training(
         keypoint_model=keypoint_model,
@@ -56,6 +77,6 @@ if __name__ == "__main__":
     ]
 
     for seq_dir in fight_sequence_dirs:
-        training.process_sequence(seq_dir, FIGHT_LABEL)
+        training.process_sequence(seq_dir, Labels.fight)
     for seq_dir in no_fight_sequence_dirs:
-        training.process_sequence(seq_dir, NO_FIGHT_LABEL)
+        training.process_sequence(seq_dir, Labels.no_fight)

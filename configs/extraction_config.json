@@ -2,7 +2,8 @@
     "directory_config": {
         "directory": "data/fightDet",
         "fight_subdirectory": "fight",
-        "no_fight_subdirectory": "noFight"
+        "no_fight_subdirectory": "noFight",
+        "output_path": "data/fightDet/frames"
     },
     "extraction_config": {
         "num_frames": 10

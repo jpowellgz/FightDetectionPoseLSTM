@@ -3,13 +3,18 @@ import os
 
 import numpy as np
 from fight_detection_pose_lstm.image_transformations.utils import read_image
-from fight_detection_pose_lstm.image_transformations.base import ImageTransformationPipeline
+from fight_detection_pose_lstm.image_transformations.base import (
+    ImageTransformationPipeline,
+)
 from fight_detection_pose_lstm.model_base import KeypointModel
 from fight_detection_pose_lstm.skeletons import AngleCalculator, Skeleton
-from fight_detection_pose_lstm.logging import logger
+from fight_detection_pose_lstm.config import AngleCalculatorConfig
 
-FIGHT_LABEL = 1
-NO_FIGHT_LABEL = 0
+
+@dataclass
+class Labels:
+    fight: int = 1
+    no_fight: int = 0
 
 
 @dataclass
@@ -24,20 +29,17 @@ class Training:
     def __init__(
         self,
         keypoint_model: KeypointModel,
-        fight_pairs_indexes: list[int],
-        angle_bins: int,
+        angle_calculator_config: AngleCalculatorConfig,
         transformations: ImageTransformationPipeline | None = None,
     ):
         self.keypoint_model = keypoint_model
         self.transformations = transformations
-        self.fight_pairs_indexes = fight_pairs_indexes
-        self.angle_bins = angle_bins
+        self.angle_config = angle_calculator_config
         self.sequences = []
 
     def process_sequence(self, directory: str, label: int):
         sequence = self.get_sequence_values(directory, label)
         self.sequences.append(sequence)
-        logger.info(self.sequences[0])
 
     def get_sequence_values(self, frame_dir: str, label: int):
         frames = [
@@ -46,13 +48,13 @@ class Training:
         seq = Sequence([], [], label, [])
         for frame in frames:
             angle_calculator = AngleCalculator(
-                self.angle_bins, len(self.fight_pairs_indexes)
+                self.angle_config.angle_bins, len(self.angle_config.fight_pairs_indexes)
             )
             image_np = read_image(frame)
             if self.transformations is not None:
                 image_np = self.transformations.transform_image(image_np)
             skeletons = self.keypoint_model.infer_skeletons(
-                image_np, fight_pairs_indexes=self.fight_pairs_indexes
+                image_np, fight_pairs_indexes=self.angle_config.fight_pairs_indexes
             )
             for skeleton in skeletons:
                 angle_calculator.add_skeleton_distribution(skeleton)

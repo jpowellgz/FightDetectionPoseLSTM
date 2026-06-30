@@ -65,7 +65,7 @@ class OpenPoseArgs(KeypointModelArgs):
 		self.scale: float = 0.003922
 		self.proto_path = proto_path
 		super().__init__(
-			local_path=model_path,
+			model_path=model_path,
 			num_keypoints=num_keypoints,
 			keypoint_names=keypoint_names,
 			pairs=pairs,
@@ -98,7 +98,7 @@ class OpenPoseGuptaModel(KeypointModel):
 	def __init__(self, model_args):
 		super().__init__(model_args)
 		self.load_model()
-		logger.info(f"Loaded Open Pose model from {self.args.local_path}")
+		logger.info(f"Loaded Open Pose model from {self.args.model_path}")
 
 	def train(self):
 		return
@@ -107,7 +107,7 @@ class OpenPoseGuptaModel(KeypointModel):
 		return
 
 	def load_model(self):
-		self.net = cv2.dnn.readNet(cv2.samples.findFile(self.args.proto_path),cv2.samples.findFile(self.args.local_path),)
+		self.net = cv2.dnn.readNet(cv2.samples.findFile(self.args.proto_path),cv2.samples.findFile(self.args.model_path),)
 
 	def get_keypoints(self, output) -> np.ndarray:
 		detected_keypoints = []
@@ -230,7 +230,6 @@ class OpenPoseGuptaModel(KeypointModel):
 				# Append the detected connections to the global list
 				valid_pairs.append(valid_pair)
 			else:  # If no keypoints are detected
-				print("No Connection : k = {}".format(k))
 				invalid_pairs.append(k)
 				valid_pairs.append([])
 
@@ -285,7 +284,6 @@ class OpenPoseGuptaModel(KeypointModel):
 					continue
 				B = np.int32(keypoints_list[index.astype(int), 0])
 				A = np.int32(keypoints_list[index.astype(int), 1])
-				# print(B,", ",A)
 				skeleton[n][i][0] = B
 				skeleton[n][i][1] = A
 		return skeleton

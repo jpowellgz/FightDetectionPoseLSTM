@@ -1,0 +1,7 @@
+{
+    "image_path": "data/fightDet/frames/noFight/nofi104/frame_0.jpg",
+    "keypoint_model": {
+        "model_path": "openpose/models/pose/coco/pose_iter_440000.caffemodel",
+        "proto_path": "openpose/models/pose/coco/pose_deploy_linevec.prototxt"
+    }
+}

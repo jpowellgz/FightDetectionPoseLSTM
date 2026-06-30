@@ -5,21 +5,23 @@ class DirectoryConfig:
     directory: str
     fight_subdirectory: str
     no_fight_subdirectory: str
-
-DIRECTORY_CONFIG = "directory_config"
+    output_path: str
 
 @dataclass
 class ExtractionConfig:
     num_frames: int
 
-EXTRACTION_CONFIG = "extraction_config"
 
 @dataclass
 class AngleCalculatorConfig:
     angle_bins: int
     fight_pairs_indexes: list[int]
 
-ANGLE_CONFIG = "angle_calculator"
 
-KEYPOINT_CONFIG = "keypoint_model"
-CLASSIF_MODEL = "classification_model"
+@dataclass(frozen=True)
+class ConfigKeys:
+    directory: str = "directory_config"
+    extraction: str = "extraction_config"
+    angle: str = "angle_calculator"
+    keypoint: str = "keypoint_model"
+    classification: str = "classification_model"

@@ -351,9 +351,7 @@ class OpenPoseGuptaModel(KeypointModel):
 			crop=False,
 		)
 		self.net.setInput(net_input)
-		logger.info("Open Pose inference starting")
 		output = self.net.forward()
-		logger.info("Open Pose inference finished")
 		if self.args.num_keypoints <= output.shape[1]:
 			keypoints = self.get_keypoints(output)
 		else:

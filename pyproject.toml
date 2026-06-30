@@ -12,6 +12,9 @@ dependencies = [
 tensorflow = [
     "tensorflow>=2.21.0",
 ]
+all = [
+    "fight-detection-pose-lstm[tensorflow]",
+]
 
 [dependency-groups]
 dev = [
@@ -35,3 +38,6 @@ log_level = "info"
 testpaths =[
     "src",
 ]
+
+[tool.uv.sources]
+fight-detection-pose-lstm = { workspace = true }

@@ -177,6 +177,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "tensorflow" },
+]
 tensorflow = [
     { name = "tensorflow" },
 ]
@@ -189,12 +192,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "fight-detection-pose-lstm", extras = ["tensorflow"], marker = "extra == 'all'", editable = "." },
     { name = "opencv-python", specifier = ">=4.13.0.92" },
     { name = "scikit-learn", specifier = ">=1.7.2" },
     { name = "tensorflow", marker = "extra == 'tensorflow'", specifier = ">=2.21.0" },
     { name = "tqdm", specifier = ">=4.68.3" },
 ]
-provides-extras = ["tensorflow"]
+provides-extras = ["tensorflow", "all"]
 
 [package.metadata.requires-dev]
 dev = [

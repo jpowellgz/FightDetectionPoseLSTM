@@ -33,10 +33,12 @@ class Training:
         keypoint_model: KeypointModel,
         angle_calculator_config: AngleCalculatorConfig,
         transformations: ImageTransformationPipeline | None = None,
+        train_size:float=0.8,
     ):
         self.keypoint_model = keypoint_model
         self.transformations = transformations
         self.angle_config = angle_calculator_config
+        self.train_size = train_size
         self.sequences: list[Sequence] = []
 
     def process_sequence(self, directory: str, label: int):
@@ -76,5 +78,5 @@ class Training:
         data_np = np.asarray(data)
         labels_np = np.asarray(labels)
 
-        x_train,x_test,y_train,y_test=train_test_split(data_np,labels_np,train_size=self.args.train_size)
+        x_train,x_test,y_train,y_test=train_test_split(data_np,labels_np,train_size=self.train_size)
         return x_train, x_test, y_train, y_test

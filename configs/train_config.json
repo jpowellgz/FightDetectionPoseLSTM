@@ -2,7 +2,15 @@
     "directory_config":{
         "directory": "data/fightDet/frames",
         "fight_subdirectory": "fight",
-        "no_fight_subdirectory": "noFight"
+        "no_fight_subdirectory": "noFight",
+        "output_path": null
+    },
+    "training_config":{
+        "save_training_data": true,
+        "save_path": "data/training_data.npz",
+        "load_training_data": false,
+        "load_path": "data/training_data.npz",
+        "train_size": 0.8
     },
     "keypoint_model": {
         "model_path": "openpose/models/pose/coco/pose_iter_440000.caffemodel",
@@ -12,5 +20,11 @@
         "angle_bins": 20,
         "fight_pairs_indexes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     },
-    "classification_model": {}
+    "classification_model": {
+        "model_path": null,
+        "hidden_units": 520,
+        "epochs": 13,
+        "sequence_length": 10,
+        "vector_size": 260
+    }
 }

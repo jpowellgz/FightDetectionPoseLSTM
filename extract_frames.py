@@ -44,7 +44,6 @@ if __name__ == "__main__":
             num_frames=extraction_config.num_frames,
         )
         extractor.extract_frames()
-        break
     
     for video in no_fight_videos:
         extractor = VideoFrameExtractor(
@@ -53,4 +52,3 @@ if __name__ == "__main__":
             num_frames=extraction_config.num_frames,
         )
         extractor.extract_frames()
-        break

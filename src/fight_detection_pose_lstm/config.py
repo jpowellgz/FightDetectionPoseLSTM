@@ -5,7 +5,7 @@ class DirectoryConfig:
     directory: str
     fight_subdirectory: str
     no_fight_subdirectory: str
-    output_path: str
+    output_path: str | None
 
 @dataclass
 class ExtractionConfig:
@@ -25,3 +25,12 @@ class ConfigKeys:
     angle: str = "angle_calculator"
     keypoint: str = "keypoint_model"
     classification: str = "classification_model"
+    training: str = "training_config"
+
+@dataclass
+class TrainingConfig:
+    save_training_data: bool
+    save_path: str
+    load_training_data: bool
+    load_path: str
+    train_size: float

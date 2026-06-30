@@ -4,6 +4,7 @@ version = "0.1.1"
 requires-python = ">=3.10"
 dependencies = [
     "opencv-python>=4.13.0.92",
+    "scikit-learn>=1.7.2",
     "tqdm>=4.68.3",
 ]
 

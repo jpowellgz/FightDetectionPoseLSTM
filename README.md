@@ -19,7 +19,7 @@ different possibilities for future work, to improve the accuracy of classificati
 </details>
 
 ## Changelog
-- **v0.1.1** - 06/2026. Updating and refactoring with uv and Python 3.10.12.
+- **v0.2.0** - 06/2026. Updating and refactoring with uv and Python 3.10.12.
 - **v0.1.0.** - 05/2021. First implementation on Python 3.7. 
   -  Open Pose 1.6.0 (CPU Release)  
   - Open CV 4.5.1.48  
@@ -79,7 +79,7 @@ Run the command:
 
 To use custom models for keypoints or classification, It's possible to inherit from the model classes in <code>model_base.py</code> to create classes similar to the ones in models directory. Then copying or modifying the <code>train_openpose_lstm.py</code> init models method to use the custom classes. As long as the inputs and outputs match the expected types and shapes, the training scripts will run the models.
 
-Tested on:
+## Tested on
 Movie Fights Dataset  
 Nievas, E. B., Suarez, O. D., García, G. B., & Sukthankar, R. (2011) Movie Fight Detection
 Dataset. Recovered from: http://visilab.etsii.uclm.es/personas/oscar/FightDetection/

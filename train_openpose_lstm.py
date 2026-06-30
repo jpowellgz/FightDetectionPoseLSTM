@@ -52,7 +52,7 @@ if __name__ == "__main__":
     dir_config = DirectoryConfig(**config_dict[ConfigKeys.directory])
     angle_config = AngleCalculatorConfig(**config_dict[ConfigKeys.angle])
 
-
+    # Check paths
     check_path(dir_config.directory)
 
     fight_dir = os.path.join(dir_config.directory, dir_config.fight_subdirectory)
@@ -60,6 +60,7 @@ if __name__ == "__main__":
     check_path(fight_dir)
     check_path(no_fight_dir)
 
+    # Start models
     keypoint_model, classification_model = init_models(config_dict)
     transformations = ImageTransformationPipeline([HighlightEdges()])
     training = Training(
@@ -69,6 +70,7 @@ if __name__ == "__main__":
         transformations=transformations,
     )
 
+    # Process each sequence of frames
     fight_sequence_dirs = [
         os.path.join(fight_dir, subdir) for subdir in os.listdir(fight_dir)
     ]

@@ -7,7 +7,7 @@ from fight_detection_pose_lstm.skeletons import Skeleton
 
 @dataclass
 class ModelArgs:
-    model_path: str
+    model_path: str | None
 
 
 class Model(ABC):

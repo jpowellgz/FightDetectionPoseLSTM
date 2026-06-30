@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import os
 
 import numpy as np
+
+from sklearn.model_selection import train_test_split
 from fight_detection_pose_lstm.image_transformations.utils import read_image
 from fight_detection_pose_lstm.image_transformations.base import (
     ImageTransformationPipeline,
@@ -35,7 +37,7 @@ class Training:
         self.keypoint_model = keypoint_model
         self.transformations = transformations
         self.angle_config = angle_calculator_config
-        self.sequences = []
+        self.sequences: list[Sequence] = []
 
     def process_sequence(self, directory: str, label: int):
         sequence = self.get_sequence_values(directory, label)
@@ -63,3 +65,16 @@ class Training:
             seq.skeletons.append(skeletons)
             seq.vectors.append(vector)
         return seq
+
+    def sequences_to_training_data(self):
+        data = []
+        labels = []
+        for sequence in self.sequences:
+            vectors = np.asarray(sequence.vectors)
+            data.append(vectors)
+            labels.append(sequence.label)
+        data_np = np.asarray(data)
+        labels_np = np.asarray(labels)
+
+        x_train,x_test,y_train,y_test=train_test_split(data_np,labels_np,train_size=self.args.train_size)
+        return x_train, x_test, y_train, y_test

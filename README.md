@@ -1,4 +1,6 @@
 # Fight Detection using Keypoints, Angles and Bi-LSTM
+<img src="assets/lstm.jpg" alt="">
+
 Fight detection using Open Pose and Bi-LSTM  
 Thesis project with paper on review stages for WEA 2026 and participation in Eureka ENC 2024.
 
